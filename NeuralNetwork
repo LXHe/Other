@@ -1,0 +1,68 @@
+import numpy as np
+
+np.random.seed(0)
+
+def sigmoid(x):
+    sigmoid = 1 / (1 + np.exp(-x))
+    return sigmoid
+
+def derivative_sigmoid(x):
+    derive = x * (1 - x)
+    return derive
+
+def relu(x):
+    return np.maximum(0, x)
+
+def derivative_relu(x):
+    return (x>0).astype(int)
+
+class NeuralNetwork:
+    '''
+    Build a neural network with one hidden layer
+    '''
+    def __init__(self, X, y, i, eta=0.01):
+        '''
+        i is the number of neurons in hidden layer,
+        eta is the learning rate of gradient descent
+        '''
+        self.X = X
+        self.y = y
+        self.eta = eta
+        self.weight_1 = np.random.rand(self.X.shape[1], i)
+        self.weight_2 = np.random.rand(i, 1)
+    
+    def forward(self):
+        '''
+        Forward feed
+        z_1 are the relu-converted values in hidden layer,
+        z_2 is the sigmoid-converted final output
+        '''
+        self.z_1 = relu(np.dot(self.X, self.weight_1))
+        self.z_2 = sigmoid(np.dot(self.z_1, self.weight_2))
+    
+    def backprop(self):
+        '''
+        Backpropagation given loss function:
+            0.5 * (z_2 - y)**2
+        '''
+        d_weight_2 = np.dot(self.z_1.T, (self.z_2 - self.y) * derivative_sigmoid(self.z_2))
+        d_weight_1 = np.dot(self.X.T, (np.dot((self.z_2 - self.y) * derivative_sigmoid(self.z_2), self.weight_2.T) * derivative_relu(self.z_1)))
+    
+#       Gradient descent. Update weights of each layer.
+        self.weight_1 += self.eta * d_weight_1
+        self.weight_2 += self.eta * d_weight_2
+
+X = np.random.randint(10, size=(3000, 6))
+y = np.random.randint(2, size=(3000, 1))
+
+if __name__ == '__main__':
+    nn = NeuralNetwork(X, y, 4)
+    
+    for i in range(100):
+        nn.forward()
+        nn.backprop()
+    
+    # set a threshold of prob > 0.5 as 1
+    y_pred = nn.z_2 > 0.5
+    accuracy = np.sum(y_pred == y) / y.shape[0]
+    print ("The accuracy after 100 trails is {:.1%}".format(accuracy))

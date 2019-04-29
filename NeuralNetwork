@@ -49,8 +49,8 @@ class NeuralNetwork:
         d_weight_1 = np.dot(self.X.T, (np.dot((self.z_2 - self.y) * derivative_sigmoid(self.z_2), self.weight_2.T) * derivative_relu(self.z_1)))
     
 #       Gradient descent. Update weights of each layer.
-        self.weight_1 += self.eta * d_weight_1
-        self.weight_2 += self.eta * d_weight_2
+        self.weight_1 -= self.eta * d_weight_1
+        self.weight_2 -= self.eta * d_weight_2
 
 X = np.random.randint(10, size=(3000, 6))
 y = np.random.randint(2, size=(3000, 1))
